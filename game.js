@@ -19,7 +19,7 @@ var bodies = [
   {
     type: 'ship',
     id: 0,
-    position: [ Math.floor(width/2) - 50, Math.floor(height/2)],
+    position: [ Math.floor(width/2) - 150, Math.floor(height/2)],
     direction: Math.PI,
     vector: [0, 0],
     lastFire: Date.now()
@@ -27,7 +27,7 @@ var bodies = [
   {
     type: 'ship',
     id: 1,
-    position: [Math.floor(width/2) + 50, Math.floor(height/2)],
+    position: [Math.floor(width/2) + 150, Math.floor(height/2)],
     direction: 0,
     vector: [0, 0],
     lastFire: Date.now()
@@ -122,11 +122,11 @@ function launchMissiles() {
   }
 }
 
-// 
+// Launch a missile from a given ship.
 function launchMissileFrom(ship) {
   var d = Date.now()
   if (d - ship.lastFire > 500) {
-    var force = 0.05;
+    var force = 0.1;
     ship.lastFire = d;
     var missile = {
       type: 'missile',
