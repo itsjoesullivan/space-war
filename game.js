@@ -1,16 +1,6 @@
 var keymap = {};
 document.addEventListener('keydown', function(e) {
   keymap[e.which] = true;
-  switch(e.which) {
-    case 87: // w
-      break;
-    case 65: // a
-      break;
-    case 83: // s
-      break;
-    case 68: // d
-      break;
-  }
 });
 document.addEventListener('keyup', function(e) {
   keymap[e.which] = false;
@@ -21,14 +11,20 @@ var frameDuration;
 
 var ship = {
   position: [10, 10],
-  direction: 90,
-  vector: [0, 0]
+  direction: 0,
+  vector: [0, 0],
+  mass: 1
+};
+
+var sun = {
+  position: [200, 200],
+  mass: 100
 };
 
 function loop() {
   var d = Date.now();
   frameDuration = d - lastRenderTime;
-  if (d - lastRenderTime > 1000/30) {
+  if (d - lastRenderTime > 1000/60) {
     applyForces();
     moveBodies();
     render();
@@ -40,18 +36,27 @@ loop();
 
 // Apply forces
 function applyForces() {
+  // Thruster
   if (keymap[83]) {
     var force = 0.00001 * frameDuration;
-    var direction = 2*Math.PI * (ship.direction - 90) / 360;
-    ship.vector[0] += force * Math.cos(direction);
-    ship.vector[1] += force * Math.sin(direction);
+    ship.vector[0] += force * Math.cos(ship.direction);
+    ship.vector[1] += force * Math.sin(ship.direction);
   }
+  // Rotate left
   if (keymap[65]) {
-    ship.direction -= (0.1 * frameDuration);
+    ship.direction -= (0.001 * frameDuration);
   }
+  // Rotate right
   if (keymap[68]) {
-    ship.direction += (0.1 * frameDuration);
+    ship.direction += (0.001 * frameDuration);
   }
+
+  // Handle sun
+  var xDist = sun.position[0] - ship.position[0];
+  var yDist = sun.position[1] - ship.position[1];
+  var distance = Math.sqrt(Math.pow(Math.abs(xDist),2) + Math.pow(Math.abs(yDist),2));
+  var G = 1;
+  var force = G * sun.mass * ship.mass / Math.pow(distance,2);
 }
 
 // Tick motion
@@ -62,13 +67,23 @@ function moveBodies() {
 
 // Render bodies on the screen
 function render() {
-  $("body").empty();
-  $("body").append("<div class='ship'></div>");
+  $(".game").empty();
+
+  // Render ship
+  $(".game").append("<div class='ship'></div>");
   var $ship = $(".ship");
   $ship.css({
     left: Math.floor(ship.position[0]),
     top: Math.floor(ship.position[1]),
-    transform: 'rotate(' + ship.direction + 'deg)'
+    transform: 'rotate(' + ship.direction + 'rad)'
+  });
+
+  // Render sun
+  $(".game").append("<div class='sun'></div>");
+  var $sun = $(".sun");
+  $sun.css({
+    left: Math.floor(sun.position[0]),
+    top: Math.floor(sun.position[1]),
   });
 }
 
