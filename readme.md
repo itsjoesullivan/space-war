@@ -2,11 +2,12 @@
 
 ##TODO
 
-- Single ship maneuvre
-- Dual ship maneuvre
-- Missiles
-- Game play
-- Crashes
-- Sun w/ gravity
-- Websocket, local
-- Websocket, deploy
+- [x] Single ship maneuvre
+- [x] Dual ship maneuvre
+- [x] Missiles
+- [x] Ship <-> missile collisions
+- [ ] Game play
+- [ ] Ship <-> ship collisions
+- [ ] Sun w/ gravity
+- [ ] Websocket, local
+- [ ] Websocket, deploy
