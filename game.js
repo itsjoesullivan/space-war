@@ -1,3 +1,4 @@
+// keymap holds current status of keys
 var keymap = {};
 document.addEventListener('keydown', function(e) {
   keymap[e.which] = true;
@@ -6,33 +7,17 @@ document.addEventListener('keyup', function(e) {
   keymap[e.which] = false;
 });
 
+// Timestamp for last render.
 var lastRenderTime = Date.now();
+// Duration of current frame.
 var frameDuration;
 
 var ship = {
   position: [10, 10],
   direction: 0,
-  vector: [0, 0],
-  mass: 1
+  vector: [0, 0]
 };
 
-var sun = {
-  position: [200, 200],
-  mass: 100
-};
-
-function loop() {
-  var d = Date.now();
-  frameDuration = d - lastRenderTime;
-  if (d - lastRenderTime > 1000/60) {
-    applyForces();
-    moveBodies();
-    render();
-    lastRenderTime = d;
-  }
-  requestAnimationFrame(loop);
-}
-loop();
 
 // Apply forces
 function applyForces() {
@@ -50,13 +35,6 @@ function applyForces() {
   if (keymap[68]) {
     ship.direction += (0.001 * frameDuration);
   }
-
-  // Handle sun
-  var xDist = sun.position[0] - ship.position[0];
-  var yDist = sun.position[1] - ship.position[1];
-  var distance = Math.sqrt(Math.pow(Math.abs(xDist),2) + Math.pow(Math.abs(yDist),2));
-  var G = 1;
-  var force = G * sun.mass * ship.mass / Math.pow(distance,2);
 }
 
 // Tick motion
@@ -70,20 +48,29 @@ function render() {
   $(".game").empty();
 
   // Render ship
-  $(".game").append("<div class='ship'></div>");
+  $(".game").append("<div class='ship'>&#x27a4;</div>");
   var $ship = $(".ship");
   $ship.css({
     left: Math.floor(ship.position[0]),
     top: Math.floor(ship.position[1]),
     transform: 'rotate(' + ship.direction + 'rad)'
   });
-
-  // Render sun
-  $(".game").append("<div class='sun'></div>");
-  var $sun = $(".sun");
-  $sun.css({
-    left: Math.floor(sun.position[0]),
-    top: Math.floor(sun.position[1]),
-  });
 }
 
+/** Loop that runs the game
+ *
+ */
+function loop() {
+  var d = Date.now();
+  frameDuration = d - lastRenderTime;
+  if (d - lastRenderTime > 50) {
+    applyForces();
+    moveBodies();
+    render();
+    lastRenderTime = d;
+  }
+  requestAnimationFrame(loop);
+}
+
+// Init.
+loop();
