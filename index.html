@@ -1,12 +1,27 @@
 <!doctype html>
 <head>
 <style>
+html, body {
+  height: 100%;
+  margin: 0;
+  width: 100%;
+  overflow: hidden;
+}
 body {
   background-color: #111;
 }
 .ship {
   position: absolute;
-  width: 20px;
+  width: 1em;
+  height: 1em;
+  color: #ddd;
+}
+.ship.dead {
+  color: red;
+}
+.missile {
+  position: absolute;
+  width: 1em;
   height: 1em;
   color: #ddd;
 }
