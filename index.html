@@ -8,7 +8,14 @@ html, body {
   overflow: hidden;
 }
 body {
-  background-color: #111;
+  background-color: #000;
+}
+#bg {
+/*background: url("background.jpg");*/
+height: 100%;
+opacity: 0.1;
+top: 0;
+background-size: cover;
 }
 .ship {
   position: absolute;
@@ -28,6 +35,8 @@ body {
 </style>
 </head>
 <body>
+<div id="bg">
+</div>
 <div class="game">
 </div>
 <script src="jquery.js"></script>
