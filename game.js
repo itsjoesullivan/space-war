@@ -1,58 +1,72 @@
+(function(){
+d = document;
+D = function() { return Date.now(); };
+d.c = d.createElement;
+d.b = d.body;
+var s = d.c('style');
+var M = Math;
+s.innerHTML =  'html,body{height:100%;width:100%;overflow:hidden;}body{background-color:#000;}div{position:absolute;}.s{width:1em;height:1em;color:#ddd;}.dead{color:red;}.m{width:1em;height:1em;color:#ddd;}';
+d.head.appendChild(s);
+game = document.c('div');
+game.className = 'game';
+game.a = game.appendChild;
+d.b.appendChild(game);
 // keymap holds current status of keys
 var keymap = {};
-document.addEventListener('keydown', function(e) {
+d.addEventListener('keydown', function(e) {
   keymap[e.which] = true;
 });
-document.addEventListener('keyup', function(e) {
+d.addEventListener('keyup', function(e) {
   keymap[e.which] = false;
 });
 
 // Timestamp for last render.
-var lastRenderTime = Date.now();
+var lR = D();
 // Duration of current frame.
-var frameDuration;
+var fD;
 
-var height = $("body").height();
-var width = $("body").width();
+var height = d.b.offsetHeight;
+var width = d.b.offsetWidth;
 
 var bodies = [
   {
-    type: 'ship',
+    t: 's',
     id: 0,
-    position: [ Math.floor(width/2) - 150, Math.floor(height/2)],
-    direction: Math.PI,
-    vector: [0, 0],
-    lastFire: Date.now()
+    p: [ width/2 - 150, height/2],
+    d: M.PI,
+    v: [0, 0],
+    l: D()
   },
   {
-    type: 'ship',
+    t: 's',
     id: 1,
-    position: [Math.floor(width/2) + 150, Math.floor(height/2)],
-    direction: 0,
-    vector: [0, 0],
-    lastFire: Date.now()
+    p: [width/2 + 150, height/2],
+    d: 0,
+    v: [0, 0],
+    l: D()
   },
 ];
+bodies.e = bodies.forEach
 
 
 // Apply forces
 function applyForces() {
-  bodies.forEach(function(body, i) {
-    if (body.type === 'ship') {
+  bodies.e(function(body, i) {
+    if (body.t === 's') {
       var ship = body;
       // Thruster
       if ((ship.id === 0 && keymap[83]) || (ship.id === 1 && keymap[40])) {
-        var force = 0.00001 * frameDuration;
-        ship.vector[0] += force * Math.cos(ship.direction);
-        ship.vector[1] += force * Math.sin(ship.direction);
+        var force = 0.00001 * fD;
+        ship.v[0] += force * M.cos(ship.d);
+        ship.v[1] += force * M.sin(ship.d);
       }
       // Rotate left
       if ((ship.id === 0 && keymap[65]) || (ship.id === 1 && keymap[37])) {
-        ship.direction -= (0.001 * frameDuration);
+        ship.d -= (0.001 * fD);
       }
       // Rotate right
       if ((ship.id === 0 && keymap[68]) || (ship.id === 1 && keymap[39])) {
-        ship.direction += (0.001 * frameDuration);
+        ship.d += (0.001 * fD);
       }
     }
   });
@@ -60,37 +74,37 @@ function applyForces() {
 
 // Tick motion
 function moveBodies() {
-  bodies.forEach(function(body) {
-    body.position[0] += (body.vector[0] * frameDuration);
-    body.position[1] += (body.vector[1] * frameDuration);
+  bodies.e(function(body) {
+    body.p[0] += (body.v[0] * fD);
+    body.p[1] += (body.v[1] * fD);
   });
 }
 
 // Render bodies on the screen
 function render() {
-  $(".game").empty();
+  game.innerHTML = '';
   // Render ship
-  bodies.forEach(function(body) {
-    if (body.type === 'ship') {
+  bodies.e(function(body) {
+    if (body.t === 's') {
       var ship = body;
-      var $ship = $("<div class='ship'>&#x27a4;</div>");
-      $(".game").append($ship);
+      var $ship = $("<div class='s'>&#x27a4;</div>");
+      game.a($ship[0]);
       $ship.css({
-        left: Math.floor(ship.position[0]),
-        top: Math.floor(ship.position[1]),
-        transform: 'rotate(' + ship.direction + 'rad)'
+        left: ship.p[0],
+        top: ship.p[1],
+        transform: 'rotate(' + ship.d + 'rad)'
       });
       if (ship.dead) {
         $ship.addClass('dead');
       }
-    } else if (body.type === 'missile') {
+    } else if (body.t === 'm') {
       var missile = body;
-      var $missile = $("<div class='missile'>&middot;</div>");
-      $(".game").append($missile);
+      var $missile = $("<div class='m'>&middot;</div>");
+      game.a($missile[0]);
       $missile.css({
-        left: Math.floor(missile.position[0]),
-        top: Math.floor(missile.position[1]),
-        transform: 'rotate(' + missile.direction + 'rad)'
+        left: missile.p[0],
+        top: missile.p[1],
+        transform: 'rotate(' + missile.d + 'rad)'
       });
     }
   });
@@ -98,10 +112,10 @@ function render() {
 
 // Remove missiles that are out of range
 function cullBodies() {
-  bodies.forEach(function(body, i) {
-    if (body.type === 'missile') {
-      var x = body.position[0],
-        y = body.position[1];
+  bodies.e(function(body, i) {
+    if (body.t === 'm') {
+      var x = body.p[0],
+        y = body.p[1];
       if (x < -2000 || y < -2000 || x > 2000 || y > 2000) {
         bodies.splice(i,1);
       }
@@ -124,34 +138,34 @@ function launchMissiles() {
 
 // Launch a missile from a given ship.
 function launchMissileFrom(ship) {
-  var d = Date.now()
-  if (d - ship.lastFire > 500) {
+  var d = D()
+  if (d - ship.l > 500) {
     var force = 0.1;
-    ship.lastFire = d;
+    ship.l = d;
     var missile = {
-      type: 'missile',
-      direction: ship.direction,
-      position: clone(ship.position),
-      vector: clone(ship.vector),
+      t: 'm',
+      d: ship.d,
+      p: clone(ship.p),
+      v: clone(ship.v),
       time: d
     };
     // Add some initial thrust in direction of ship
-    missile.vector[0] += force * Math.cos(ship.direction);
-    missile.vector[1] += force * Math.sin(ship.direction);
+    missile.v[0] += force * M.cos(ship.d);
+    missile.v[1] += force * M.sin(ship.d);
     bodies.push(missile);
   }
 }
 
 // Identify collisions
 function triggerCollisions() {
-  bodies.forEach(function(ship, i) {
-    if (ship.type !== 'ship') return;
-    bodies.forEach(function(missile, j) {
-      if (Date.now() - missile.time > 1000) {
-        if (missile.type !== 'missile') return;
-        var xDist = Math.abs(missile.position[0] - ship.position[0]);
-        var yDist = Math.abs(missile.position[1] - ship.position[1]);
-        var distance = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+  bodies.e(function(ship, i) {
+    if (ship.t !== 's') return;
+    bodies.e(function(missile, j) {
+      if (D() - missile.time > 1000) {
+        if (missile.t !== 'm') return;
+        var x = M.abs(missile.p[0] - ship.p[0]);
+        var y = M.abs(missile.p[1] - ship.p[1]);
+        var distance = M.sqrt(x * x + y * y);
         if (distance < 10) {
           destroy(ship);
         }
@@ -172,16 +186,16 @@ function destroy(ship) {
  */
 function loop() {
   if (!gameOver) {
-    var d = Date.now();
-    frameDuration = d - lastRenderTime;
-    if (d - lastRenderTime > 1000/48) {
+    var d = D()
+    fD = d - lR;
+    if (d - lR > 1000/48) {
       cullBodies();
       triggerCollisions();
       launchMissiles();
       applyForces();
       moveBodies();
       render();
-      lastRenderTime = d;
+      lR = d;
     }
     requestAnimationFrame(loop);
   } else {
@@ -191,3 +205,5 @@ function loop() {
 
 // Init.
 loop();
+
+})();
